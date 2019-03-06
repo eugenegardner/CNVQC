@@ -36,7 +36,7 @@ public class CNVAnnotatorImplement {
 	
 	private static void printHelp() {
 		System.err.println();
-		System.err.println("Please use either \'Merge\', \'Polish\', or \'View\' as a Runtime (the first Argument)");
+		System.err.println("Please use either \'Merge\' or \'Annotate\' as a Runtime (the first Argument)\n");
 		System.err.println("Merge - Merge CNVs processed by Annotate and filtered by <>");
 		System.err.println("Annotate - Attach sample and summary statistics to raw CNVs");
 		System.err.println();

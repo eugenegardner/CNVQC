@@ -52,7 +52,7 @@ public class SampleLoader {
 			
 			String ID = data[0];
 			File splitFile = new File(splitDir.getAbsolutePath() + "/" + ID + ".bed.gz");
-						
+			System.out.println(data[1]);			
 			double lrr_mean = Double.parseDouble(data[1]);
 			double lrr_median = Double.parseDouble(data[2]);
 			double lrr_sd = Double.parseDouble(data[3]);
