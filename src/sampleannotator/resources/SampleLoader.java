@@ -53,7 +53,7 @@ public class SampleLoader {
 			data = line.split("\t");
 			
 			String ID = data[0];
-			File splitFile = new File(splitDir.getAbsolutePath() + "/" + ID + ".bed.gz");
+			File splitFile = new File(splitDir.getAbsolutePath() + "/" + ID + ".sorted.bed.gz");
 			
 			try {
 			
