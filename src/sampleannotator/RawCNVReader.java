@@ -149,6 +149,9 @@ public class RawCNVReader implements Closeable {
 				if (currentCNV != null) {
 					totalCNVs++;
 					cnvs.add(currentCNV);
+					if (totalCNVs % 1000 == 0) {
+						System.err.println("Total CNVs processed... " + totalCNVs);
+					}
 				}
 			}
 			lineNum++;
@@ -283,6 +286,8 @@ public class RawCNVReader implements Closeable {
 		}
 				
 		LRRandBAFInformation lrrbaf = new LRRandBAFInformation(lrrStat, bafStat, nLeft, nRight);
+		
+		lrrbafTabixReader.close();
 		
 		return lrrbaf;
 		
