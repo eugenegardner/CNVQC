@@ -68,6 +68,11 @@ public class SampleLoader {
 				double wf = Double.parseDouble(data[8]);
 				int numCNV = Integer.parseInt(data[9]);
 				
+				//This is a dumb fix due to an error in George's qcsum file:
+				if (data[10].equals("unknow")) {
+					data[10] = "unknown";
+				}
+				
 				Gender gender = Gender.valueOf(data[10].toUpperCase());
 				
 				double callRate = Double.parseDouble(data[11]);
