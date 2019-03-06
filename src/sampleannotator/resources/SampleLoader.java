@@ -52,31 +52,39 @@ public class SampleLoader {
 			
 			String ID = data[0];
 			File splitFile = new File(splitDir.getAbsolutePath() + "/" + ID + ".bed.gz");
-			System.out.println(data[1]);			
-			double lrr_mean = Double.parseDouble(data[1]);
-			double lrr_median = Double.parseDouble(data[2]);
-			double lrr_sd = Double.parseDouble(data[3]);
-			
-			double baf_mean = Double.parseDouble(data[4]);
-			double baf_median = Double.parseDouble(data[5]);
-			double baf_sd = Double.parseDouble(data[6]);
-			
-			double baf_drift = Double.parseDouble(data[7]);
-							
-			double wf = Double.parseDouble(data[8]);
-			int numCNV = Integer.parseInt(data[9]);
-			
-			Gender gender = Gender.valueOf(data[10].toUpperCase());
-			
-			double callRate = Double.parseDouble(data[11]);
 
-			if (callRate > 96.0) {
+			try {
 			
-				finalSampleInformation.put(ID, new SampleInformation(gender, callRate, lrr_sd, lrr_mean, lrr_median, baf_sd, baf_mean, baf_median, baf_drift, wf, numCNV, splitFile));
-			
-				if (!samples.contains(ID)) {
-					samples.add(ID);
+				double lrr_mean = Double.parseDouble(data[1]);
+				double lrr_median = Double.parseDouble(data[2]);
+				double lrr_sd = Double.parseDouble(data[3]);
+				
+				double baf_mean = Double.parseDouble(data[4]);
+				double baf_median = Double.parseDouble(data[5]);
+				double baf_sd = Double.parseDouble(data[6]);
+				
+				double baf_drift = Double.parseDouble(data[7]);
+								
+				double wf = Double.parseDouble(data[8]);
+				int numCNV = Integer.parseInt(data[9]);
+				
+				Gender gender = Gender.valueOf(data[10].toUpperCase());
+				
+				double callRate = Double.parseDouble(data[11]);
+
+				if (callRate > 96.0) {
+				
+					finalSampleInformation.put(ID, new SampleInformation(gender, callRate, lrr_sd, lrr_mean, lrr_median, baf_sd, baf_mean, baf_median, baf_drift, wf, numCNV, splitFile));
+				
+					if (!samples.contains(ID)) {
+						samples.add(ID);
+					}
 				}
+				
+			} catch (NumberFormatException e) {
+				System.err.println(data[0] + " has blank spaces!");
+				System.err.println(line);
+				continue;
 			}
 			
 		}
