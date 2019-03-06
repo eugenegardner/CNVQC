@@ -45,14 +45,16 @@ public class SampleLoader {
 		String data[];
 		
 		Map<String, SampleInformation> finalSampleInformation = new HashMap<String, SampleInformation>();
-						
+					
+		int samplesBlank = 0;
+		
 		while ((line = splitReader.readLine()) != null) {
 			
 			data = line.split("\t");
 			
 			String ID = data[0];
 			File splitFile = new File(splitDir.getAbsolutePath() + "/" + ID + ".bed.gz");
-
+			
 			try {
 			
 				double lrr_mean = Double.parseDouble(data[1]);
@@ -87,12 +89,13 @@ public class SampleLoader {
 				}
 				
 			} catch (NumberFormatException e) {
-				System.err.println(data[0] + " has blank spaces!");
-				System.err.println(line);
+				samplesBlank++;
 				continue;
 			}
 			
 		}
+		
+		System.err.println("Total samples blank for at least one category : " + samplesBlank );
 		
 		return finalSampleInformation;
 		
