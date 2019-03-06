@@ -22,7 +22,7 @@ public class CNVMerger {
 		File toMerge = options.getRawCNVs();
 		tmpDir = options.getTmpDirectory();
 		
-		SampleLoader sampleLoader = new SampleLoader();
+		SampleLoader sampleLoader = new SampleLoader(toMerge, toMerge);
 		
 		//This will read raw CNVS and print all raw information necessary for filtering
 		ProcessedCNVReader reader = new ProcessedCNVReader(toMerge, options.isFilter());

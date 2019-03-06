@@ -3,7 +3,6 @@ package sampleannotator;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -12,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,13 +50,13 @@ public class RawCNVReader implements Closeable {
 		dgvDups = new HashMap<String,IntervalTree<String>>();
 		BuildGoldStandard();
 		
-		File axiomProbes = new File("/lustre/scratch115/projects/interval_cnv/calling/reference/axiom_probes.bed.gz");
+		File axiomProbes = new File("/gluster/neurocluster/projects/biobank-cnv/BATCHES/CNVQC/referencefiles/axiom_probes.bed.gz");
 		axiomTabix = new TabixReader(axiomProbes.getAbsolutePath(),axiomProbes.getAbsolutePath() + ".tbi");
 		
-		File baits = new File("/lustre/scratch115/projects/interval_cnv/calling/sanger_exome_cnvs/exome_baits/bait_regions_unpadded.merge500.bed.gz");
+		File baits = new File("/gluster/neurocluster/projects/biobank-cnv/BATCHES/CNVQC/referencefiles/bait_regions_unpadded.merge500.bed.gz");
 		baitTabix = new TabixReader(baits.getAbsolutePath(),baits.getAbsolutePath() + ".tbi");
 		
-		cytoMap = buildCytoband(new File("/lustre/scratch115/projects/interval_cnv/calling/reference/cytoBand.txt"));
+		cytoMap = buildCytoband(new File("/gluster/neurocluster/projects/biobank-cnv/BATCHES/CNVQC/referencefiles/cytoBand.txt"));
 		
 	}
 	
@@ -72,15 +70,11 @@ public class RawCNVReader implements Closeable {
 		cnvReader.close();
 		baitTabix.close();
 		axiomTabix.close();
-		WESTabix.CONVEX.close();
-		WESTabix.XHMM.close();
-		WESTabix.CLAMMS.close();
-		WESTabix.CANOES.close();
 
 	}
 	
 	private void BuildGoldStandard() throws IOException {
-		File CNVGoldStandard = new File("/lustre/scratch115/projects/interval_cnv/calling/reference/DGV.GS.March2016.50percent.GainLossSep.Final.hg19.bed");
+		File CNVGoldStandard = new File("/gluster/neurocluster/projects/biobank-cnv/BATCHES/CNVQC/referencefiles/DGV.GS.March2016.50percent.GainLossSep.Final.hg19.bed");
 		BufferedReader bedReader = new BufferedReader(new FileReader(CNVGoldStandard));
 		
 		dgvDels = new HashMap<String,IntervalTree<String>>();
@@ -139,31 +133,6 @@ public class RawCNVReader implements Closeable {
 		
 	}
 	
-	public CNV getRandomCNV() throws IOException {
-		
-		Random randomGen = new Random();
-		int testCNV = randomGen.nextInt(32695);
-		int lineNum = 0;
-		String line;
-		CNV cnv = null;
-		while ((line = cnvReader.readLine()) != null) {
-			if (lineNum == testCNV) {
-				cnv = parseCNVLine(line);
-				break;
-			}
-			lineNum++;
-		}
-		if (cnv == null) {
-			return null;
-		} else {
-			if (cnv.getCopyNumber() < 2) {
-				return cnv;
-			} else {
-				return null;
-			}
-		}
-		
-	}
 	public List<CNV> getAllCNVs(int lineStart, int lineEnd) throws NumberFormatException, IOException {
 		
 		List<CNV> cnvs = new ArrayList<CNV>();
@@ -195,15 +164,14 @@ public class RawCNVReader implements Closeable {
 		//PennCNV is white-space delim... whereas my LRR BAF info isn't
 		String lrrbaf[] = line.split("\t");
 		String data[] = lrrbaf[0].split("\\s+");
-		Pattern filePattern = Pattern.compile("(split\\d+\\.a\\d{6}\\S*)");
 		
 		//New Code to parse CNV:
 		//Only want individuals that passed AFFY QC
-		File splitFile = new File(data[4]);
+		String splitFile = data[4];
 
-		if (sampleInformation.containsKey(splitFile.getName())) {				
+		if (sampleInformation.containsKey(splitFile)) {				
 		
-			SampleInformation sampInfo = sampleInformation.get(splitFile.getName());
+			SampleInformation sampInfo = sampleInformation.get(splitFile);
 			
 			String chr = null;
 			int start = -1;
@@ -219,15 +187,9 @@ public class RawCNVReader implements Closeable {
 			int copyNumber = (int)EqualSpliter(data[3]);
 			double conf = EqualSpliter(data[7]);
 			//New code to parse CNV
-			
-			//Captures sample names
-			Matcher fileMatcher = filePattern.matcher(splitFile.getName());
-			
-			if (fileMatcher.matches()) {
-				String fileName = fileMatcher.group(1);
-				if (!samples.contains(fileName)) {
-					samples.add(fileName);
-				}
+						
+			if (!samples.contains(splitFile)) {
+				samples.add(splitFile);
 			}
 			if (!chrs.contains(chr)) {
 				chrs.add(chr);
@@ -252,26 +214,6 @@ public class RawCNVReader implements Closeable {
 			IntervalTree<Boolean> wesBaits = getIntersectingBaits(chr, start, end);	
 			currentCNV.setTotalIntersectingBaits(wesBaits.size());
 			
-			//Check if there are any intersecting CNVs for this individual if individual has WES data
-			if (sampInfo.hasWES()) {
-					
-//				System.out.println(currentCNV.getLocationCoordinates() + " -- Total Baits: " + probeCount);
-				
-//				System.out.println("CONVEX");
-				currentCNV.setIntersectingWESConvexCNVs(getWESCNVs(sampInfo.getEGAN(), currentCNV, WESTabix.CONVEX, wesBaits)); //This checks CONVEX CNVs.
-//				System.out.println("XHMM");
-				currentCNV.setIntersectingWESXHMMCNVs(getWESCNVs(sampInfo.getEGAN(), currentCNV, WESTabix.XHMM, wesBaits)); //This checks XHMM CNVs.
-//				System.out.println("CLAMMS");
-				currentCNV.setIntersectingWESCLAMMSCNVs(getWESCNVs(sampInfo.getSangerID(),currentCNV, WESTabix.CLAMMS, wesBaits)); //This checks CLAMMS CNVs.
-//				System.out.println("CANOES");
-				currentCNV.setIntersectingWESCANOESCNVs(getWESCNVs(sampInfo.getSangerID(),currentCNV, WESTabix.CANOES, wesBaits)); //This checks CLAMMS CNVs.
-				
-				if (currentCNV.getTotalIntersectingBaits() > 0) {
-					currentCNV.setWESStats(getWESStats(chr, start, end, sampInfo.getEGAN()));
-				}
-
-			}
-
 			return currentCNV;
 			
 		} else {
@@ -281,28 +223,6 @@ public class RawCNVReader implements Closeable {
 		}
 
 	}
-	private IntervalTree<Boolean> getIntersectingProbes(String chr, int start, int end) throws IOException {
-		
-		IntervalTree<Boolean> baitTree = new IntervalTree<Boolean>();
-		
-		Iterator itr = axiomTabix.query(chr, start, end);
-
-		String line;
-		
-		while ((line = itr.next()) != null) {
-
-			String data[] = line.split("\t");
-			
-			int baitStart = Integer.parseInt(data[1]);
-			int baitEnd = Integer.parseInt(data[2]);
-			
-			baitTree.put(baitStart, baitEnd, false);
-			
-		}
-				
-		return baitTree;
-		
-	}	
 	private IntervalTree<Boolean> getIntersectingBaits(String chr, int start, int end) throws IOException {
 		
 		IntervalTree<Boolean> baitTree = new IntervalTree<Boolean>();
@@ -323,110 +243,6 @@ public class RawCNVReader implements Closeable {
 		}
 				
 		return baitTree;
-		
-	}
-	
-	private double getWESCNVs(String eganID, CNV cnv, WESTabix tabix, IntervalTree<Boolean> wesBaits) throws NumberFormatException, IOException {
-		
-		String line;
-		String data[];
-		
-//		List<CNVInterval> WESCNVs = new ArrayList<CNVInterval>();
-		
-		Iterator itr = tabix.getReader().query(cnv.getChr(), cnv.getStart(), cnv.getEnd());			
-		
-		double totalBaits = wesBaits.size();
-		double baitsIntersected = 0;
-				
-		double totalProbes = 0;
-		double probesIntersected = 0;
-								
-		while ((line = itr.next()) != null) {
-			
-			data = line.split("\t");
-				
-			int startWES = Integer.parseInt(data[1]);
-			int endWES = Integer.parseInt(data[2]);
-			double numProbes = Double.parseDouble(data[3]);
-			CopyType ctWES = CopyType.valueOf(data[5]);
-			String eganIDWES = data[6];
-			
-			CNV wesCNV = new CNV(cnv.getChr(), startWES, endWES, 0, (int) numProbes, 0.0, null, null);
-			ArrayList<CNV> toInt = new ArrayList<CNV>();
-			toInt.add(cnv);
-			toInt.add(wesCNV);
-			Interval wesCnvInt = new Interval(cnv.getChr(), startWES, endWES);
-			Interval cnvInt = new Interval(cnv.getChr(), cnv.getStart(), cnv.getEnd());
-			
-			// New trigger is if we have ±20% of probes overlapped by ArrayCNV
-			// This means 80% of all probes that an array CNV overlaps should be within the WES interval AND the WES CNV contains no more than 20% extra probes
-
-			if (eganIDWES.equals(eganID) && cnv.getCopyType().equals(ctWES) && wesCnvInt.intersects(cnvInt)) {
-								
-				// This checks for the WES CNV encompassing >80% of WES baits covered by the array CNV
-				java.util.Iterator<Node<Boolean>> baitOverlap = wesBaits.overlappers(startWES, endWES);
-								
-				while (baitOverlap.hasNext()) {
-					baitOverlap.next();
-					baitsIntersected++;
-				}
-				
-				// This checks for the Array CNV encompassing >80% of array probes covered by the WES CNV
-				IntervalTree<Boolean> axiomProbes = getIntersectingProbes(cnv.getChr(), startWES, endWES);
-				totalProbes += axiomProbes.size();		
-				
-				java.util.Iterator<Node<Boolean>> probeOverlap = axiomProbes.overlappers(cnv.getStart(), cnv.getEnd() + 1);
-							
-				while (probeOverlap.hasNext()) {
-					probeOverlap.next();
-					probesIntersected++;
-				}
-//								
-//				double test1 = totalIntersectingBaits / totalBaits;
-//				double test2 = totalIntersectingProbes / totalProbes;
-//				System.out.println("\t -- Total WES Baits (" + totalBaits + "): " + totalIntersectingBaits + "\t(" + test1 + ")");
-//				System.out.println("\t -- Total Axiom Pro (" + totalProbes + "): " + totalIntersectingProbes + "\t(" + test2 + ")");
-//				
-//				if (((test1) >= 0.80) && ((test2) >= 0.80)) {
-//						
-//						System.out.println("\tPASS");
-//						WESCNVs.add(new CNVInterval(cnv.getChr(), startWES, endWES));
-//				
-//				}
-			}
-		}
-		
-//		System.out.println("\tWES: " + baitsIntersected + " -- " + wesBaits.size());
-//		System.out.println("\tARR: " + probesIntersected + " -- " + totalProbes);
-		
-		if (totalProbes == 0) {
-//			System.out.println(baitsIntersected / totalBaits);
-			return(baitsIntersected / totalBaits);
-		} else {
-//			System.out.println((baitsIntersected / totalBaits) + (probesIntersected / totalProbes));
-			return((baitsIntersected / totalBaits) * (probesIntersected / totalProbes));
-		}
-				
-	}
-	private DescriptiveStatistics getWESStats(String chr, int start, int end, String EGAN) throws IOException {
-		
-		File wesL2RFile = new File("/lustre/scratch115/projects/interval_cnv/calling/sanger_exome_cnvs/CONVEX/convex_out/ProbeRD_" + EGAN + "_LR2.coords.bed.gz");
-		DescriptiveStatistics l2rStats = new DescriptiveStatistics();
-		TabixReader l2rTabix = new TabixReader(wesL2RFile.getAbsolutePath(),wesL2RFile.getAbsolutePath() + ".tbi");
-		
-		Iterator itr = l2rTabix.query(chr, start, end);
-		
-		String line;
-		String data[];
-		
-		while ((line = itr.next()) != null) {
-			
-			data = line.split("\t");
-			double l2r = Double.parseDouble(data[3]);
-			l2rStats.addValue(l2r);
-			
-		}
-		return l2rStats;
 		
 	}
 	
@@ -634,34 +450,6 @@ public class RawCNVReader implements Closeable {
 		String parsed[] = toParse.split("\\=");
 		String replaced = parsed[1].replaceAll(",","");
 		return Double.parseDouble(replaced);
-	}
-	
-	private enum WESTabix {
-		
-		CONVEX(new File("/lustre/scratch115/projects/interval_cnv/calling/sanger_exome_cnvs/CONVEX/interval_cnv_calls.raw.ejg.sorted.bed.gz")),
-		XHMM(new File("/lustre/scratch115/projects/interval_cnv/calling/sanger_exome_cnvs/XHMM/INTERVAL.xhmm.sorted.bed.gz")),
-		CLAMMS(new File("/lustre/scratch115/projects/interval_cnv/calling/sanger_exome_cnvs/CLAMMS/CLAMMS.cnvs.bed.gz")),
-		CANOES(new File("/lustre/scratch115/projects/interval_cnv/calling/sanger_exome_cnvs/CANOES/CANOES.cnvs.bed.gz"));
-		
-		private TabixReader reader;
-		
-		private WESTabix(File tabixFile) {
-			try {
-				reader = new TabixReader(tabixFile.getAbsolutePath(),tabixFile.getAbsolutePath() + ".tbi");
-			} catch (IOException e) {
-				System.err.println("Could not load WES tabix file: " + tabixFile.getAbsolutePath());
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-
-		public TabixReader getReader() {
-			return reader;
-		}
-		public void close() {
-			reader.close();
-		}
-				
 	}
 	
 }

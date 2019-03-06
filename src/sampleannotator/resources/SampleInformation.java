@@ -5,59 +5,8 @@ import java.io.File;
 public class SampleInformation {
 	
 	private File splitFile;
-	private String CELName;
-	private String affyID;
-	private String sangerID;
-	private String EGAN;
-	private boolean hasWES;
 	private Gender gender;
 	private Double callRate;
-	
-	public SampleInformation(String CELName, String affyID, Gender gender, double callRate) {
-		
-		this.CELName = CELName;
-		this.affyID = affyID;
-		this.gender = gender;
-		this.callRate = callRate;
-		hasWES = false;
-		
-	}
-
-	public String getSangerID() {
-		return sangerID;
-	}
-	public void setSangerID(String sangerID) {
-		this.sangerID = sangerID;
-		hasWES = true;
-	}
-	public String getEGAN() {
-		return EGAN;
-	}
-	public void setEGAN(String EGAN) {
-		this.EGAN = EGAN;
-	}
-	public File getSplitFile() {
-		return splitFile;
-	}
-	public void setSplitFile(File splitFile) {
-		this.splitFile = splitFile;
-	}
-	public String getCELName() {
-		return CELName;
-	}
-	public String getAffyID() {
-		return affyID;
-	}
-	public Gender getGender() {
-		return gender;
-	}
-	public Double getCallRate() {
-		return callRate;
-	}
-	public boolean hasWES() {
-		return hasWES;
-	}
-	
 	private double lrr_sd;
 	private double lrr_mean;
 	private double lrr_median;
@@ -69,65 +18,76 @@ public class SampleInformation {
 	private int numCNV;
 	private boolean isIndivFiltered;
 	
-	public void addFilterInformation(double wf, int numCNV) {
+	public SampleInformation(Gender gender, 
+			double callRate, 
+			double lrr_sd, 
+			double lrr_mean, 
+			double lrr_median, 
+			double baf_sd, 
+			double baf_mean, 
+			double baf_median, 
+			double baf_drift, 
+			double wf, 
+			int numCNV,
+			File splitFile) {
+		
+		this.gender = gender;
+		this.callRate = callRate;
+		this.lrr_sd = lrr_sd;
+		this.lrr_mean = lrr_mean;
+		this.lrr_median = lrr_median;
+		this.baf_sd = baf_sd;
+		this.baf_mean = baf_mean;
+		this.baf_median = baf_median;
+		this.baf_drift = baf_drift;
 		this.wf = wf;
 		this.numCNV = numCNV;
+		this.splitFile = splitFile;
+						
 		isIndivFiltered = checkIndivFilter(numCNV, wf);
+
 	}
 
+	public File getSplitFile() {
+		return splitFile;
+	}
+	public Gender getGender() {
+		return gender;
+	}
+	public Double getCallRate() {
+		return callRate;
+	}
 	public double getLrr_sd() {
 		return lrr_sd;
-	}
-	public void setLrr_sd(double lrr_sd) {
-		this.lrr_sd = lrr_sd;
 	}
 	public double getLrr_mean() {
 		return lrr_mean;
 	}
-	public void setLrr_mean(double lrr_mean) {
-		this.lrr_mean = lrr_mean;
-	}
 	public double getLrr_median() {
 		return lrr_median;
-	}
-	public void setLrr_median(double lrr_median) {
-		this.lrr_median = lrr_median;
 	}
 	public double getBaf_sd() {
 		return baf_sd;
 	}
-	public void setBaf_sd(double baf_sd) {
-		this.baf_sd = baf_sd;
-	}
 	public double getBaf_mean() {
 		return baf_mean;
-	}
-	public void setBaf_mean(double baf_mean) {
-		this.baf_mean = baf_mean;
 	}
 	public double getBaf_median() {
 		return baf_median;
 	}
-	public void setBaf_median(double baf_median) {
-		this.baf_median = baf_median;
-	}
 	public double getBaf_drift() {
 		return baf_drift;
 	}
-	public void setBaf_drift(double baf_drift) {
-		this.baf_drift = baf_drift;
-	}
-
 	public double getWf() {
 		return wf;
 	}
 	public int getNumCNV() {
 		return numCNV;
 	}
-
 	public boolean isIndivFiltered() {
 		return isIndivFiltered;
 	}
+	
 	private boolean checkIndivFilter (int numCNV, double wf) {
 		
 		if (numCNV <= 30 && wf > -0.03 && wf < 0.03) {

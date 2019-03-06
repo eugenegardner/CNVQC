@@ -22,7 +22,7 @@ public class CNVSampleAnnotator {
 		CNVSampleAnnotatorOptions options = new CNVSampleAnnotatorOptions(args);
 		File toAnnotate = options.getRawCNVs();
 		
-		SampleLoader sampleLoader = new SampleLoader();
+		SampleLoader sampleLoader = new SampleLoader(options.getQCSum(), options.getSplitDir());
 		
 		Map<String, SampleInformation> sampleInformation = sampleLoader.getSampleInformation();
 		
@@ -114,10 +114,10 @@ public class CNVSampleAnnotator {
 			printtab(cnv.getChr()); //0
 			printtab(cnv.getStart()); //1
 			printtab(cnv.getEnd()); //2
-			printtab(si.getSangerID()); //3
-			printtab(si.getEGAN()); //4
+			printtab("NA"); //3
+			printtab("NA"); //4
 			printtab(si.getSplitFile().getAbsolutePath()); //5
-			printtab(si.hasWES()); //6
+			printtab("NA"); //6
 			printtab(cnv.getLocationCoordinates()); //7
 			printtab(cnv.getCopyNumber()); //8
 			printtab(cnv.getLength()); //9
@@ -130,20 +130,20 @@ public class CNVSampleAnnotator {
 			printtab(si.getBaf_sd()); //16
 			printtab(si.getWf()); //17
 			printtab(si.getBaf_drift()); //18
-			printtab(si.getCELName()); //19
+			printtab("NA"); //19
 			printtab(si.getNumCNV()); //20
 			printtab(si.getGender()); //21
 			printtab(df.format(cnv.getDensity())); //22
 			printtab(df.format(si.getCallRate())); //23
-			printtab(cnv.getIntersectingWESConvexCNVs()); //24
-			printtab(cnv.getIntersectingWESXHMMCNVs()); //25
-			printtab(cnv.getIntersectingWESCLAMMSCNVs()); //26
-			printtab(cnv.getIntersectingWESCANOESCNVs()); //27
+			printtab("NA"); //24
+			printtab("NA"); //25
+			printtab("NA"); //26
+			printtab("NA"); //27
 			printtab(cnv.getTotalIntersectingBaits()); //28
 			printtab(cnv.getGoldStandardSV()); //29
-			printtab(cnv.getWESMeanL2R()); //30
-			printtab(cnv.getWESL2Rsd()); //31
-			printtab(cnv.getWESL2N()); //32
+			printtab("NA"); //30
+			printtab("NA"); //31
+			printtab("NA"); //32
 			printtab(si.isIndivFiltered()); //33
 			printtab(cnv.isSiteFiltered()); //34
 			printtab(cnv.getProbeCount()); //35

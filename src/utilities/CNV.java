@@ -1,7 +1,5 @@
 package utilities;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
-
 import merger.CNVConverter.CopyType;
 import sampleannotator.RawCNVReader.LRRandBAFInformation;
 import sampleannotator.resources.SampleInformation;
@@ -18,11 +16,6 @@ public class CNV {
 	private SampleInformation sampleInformation;
 	private LRRandBAFInformation lrrbaf;
 	private int mergeGroup;
-	private DescriptiveStatistics WESstats;
-	private double intersectingWESConvexCNVs;
-	private double intersectingWESXHMMCNVs;
-	private double intersectingWESCLAMMSCNVs;
-	private double intersectingWESCANOESCNVs;
 	private String gsCNV;
 	private double distTel;
 	private double distCen;
@@ -52,7 +45,6 @@ public class CNV {
 		siteFiltered = checkSiteFilter();
 		
 		totalIntersectingBaits = 0;
-		WESstats = new DescriptiveStatistics();
 		
 		mergeGroup = -1;
 		
@@ -127,32 +119,7 @@ public class CNV {
 			return true;
 		}
 	}
-		
-	public void setIntersectingWESConvexCNVs(double intersectingWESConvexCNVs) {
-		this.intersectingWESConvexCNVs = intersectingWESConvexCNVs;
-	}
-	public double getIntersectingWESConvexCNVs() {
-		return intersectingWESConvexCNVs;
-	}
-	public void setIntersectingWESXHMMCNVs(double intersectingWESXHMMCNVs) {
-		this.intersectingWESXHMMCNVs = intersectingWESXHMMCNVs;
-	}
-	public double getIntersectingWESXHMMCNVs() {
-		return intersectingWESXHMMCNVs;
-	}
-	public void setIntersectingWESCLAMMSCNVs(double intersectingWESCLAMMSCNVs) {
-		this.intersectingWESCLAMMSCNVs = intersectingWESCLAMMSCNVs;
-	}
-	public double getIntersectingWESCLAMMSCNVs() {
-		return intersectingWESCLAMMSCNVs;
-	}
-	public void setIntersectingWESCANOESCNVs(double intersectingWESCANOESCNVs) {
-		this.intersectingWESCANOESCNVs = intersectingWESCANOESCNVs;
-	}
-	public double getIntersectingWESCANOESCNVs() {
-		return intersectingWESCANOESCNVs;
-	}
-		
+	
 	private int totalIntersectingBaits;
 	
 	public int getTotalIntersectingBaits() {
@@ -160,18 +127,6 @@ public class CNV {
 	}
 	public void setTotalIntersectingBaits(int totalIntersectingBaits) {
 		this.totalIntersectingBaits = totalIntersectingBaits;
-	}
-	public void setWESStats(DescriptiveStatistics WESstats) {
-		this.WESstats = WESstats;
-	}
-	public double getWESMeanL2R() {
-		return WESstats.getMean();
-	}
-	public double getWESL2Rsd() {
-		return WESstats.getStandardDeviation();
-	}
-	public long getWESL2N() {
-		return WESstats.getN();
 	}
 
 	public void setGoldStandardSV(String gsCNV) {
