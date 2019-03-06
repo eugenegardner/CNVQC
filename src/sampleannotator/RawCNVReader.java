@@ -248,7 +248,7 @@ public class RawCNVReader implements Closeable {
 	
 	private LRRandBAFInformation getLRRBAF(File splitFile, String chr, int start, int end) throws IOException {
 		
-		TabixReader lrrbafTabixReader = new TabixReader(splitFile.getAbsolutePath() + ".sorted.bed.gz", splitFile.getAbsolutePath() + ".sorted.bed.gz.tbi");
+		TabixReader lrrbafTabixReader = new TabixReader(splitFile.getAbsolutePath(), splitFile.getAbsolutePath() + ".tbi");
 		
 		int len = end - start;
 		int qStart = (start - len) < 0 ? 0 : (start - len);
